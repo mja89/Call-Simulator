@@ -1,0 +1,7 @@
+<resources>
+    <color name="call_bg">#1B1F27</color>
+    <color name="accept_green">#2ECC71</color>
+    <color name="decline_red">#E74C3C</color>
+    <color name="white">#FFFFFF</color>
+    <color name="gray_light">#B0B3B8</color>
+</resources>
