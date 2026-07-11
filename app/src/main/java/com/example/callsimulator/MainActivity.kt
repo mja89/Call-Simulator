@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var recycler: RecyclerView
     private lateinit var adapter: ContactAdapter
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -34,6 +34,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         loadContactsFromDatabase()
+    }
+  
+    // این متد را به کلاس MainActivity اضافه کن
+   override fun onResume() {
+       super.onResume()
+       loadContactsFromDatabase() // این باعث می‌شود هر بار که صفحه نمایش داده می‌شود، لیست آپدیت شود
     }
 
     private fun loadContactsFromDatabase() {
