@@ -20,7 +20,6 @@ class ContactAdapter(private var contacts: List<ContactEntity>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
-        // از همان لایوت item_contact که ساختیم استفاده می‌کنیم
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_contact, parent, false)
         return ContactViewHolder(view)
@@ -31,8 +30,10 @@ class ContactAdapter(private var contacts: List<ContactEntity>) :
         
         holder.name.text = contact.name
         holder.phone.text = contact.phoneNumber
+        
+        // تنظیم دایره‌ای کردن تصویر
         holder.image.clipToOutline = true
-        holder.image.background = context.getDrawable(R.drawable.circle_shape) // از همان شیپی که ساختی استفاده کن
+        holder.image.background = holder.itemView.context.getDrawable(R.drawable.circle_shape)
 
         // نمایش صحیح عکس از مسیر فایل محلی
         if (!contact.profileImageUri.isNullOrEmpty()) {
@@ -40,18 +41,15 @@ class ContactAdapter(private var contacts: List<ContactEntity>) :
             if (file.exists()) {
                 holder.image.setImageURI(Uri.fromFile(file))
             } else {
-                // اگر فایل به هر دلیلی پیدا نشد، تصویر پیش‌فرض نمایش داده شود
                 holder.image.setImageResource(android.R.drawable.sym_def_app_icon)
             }
         } else {
-            // اگر آدرس خالی بود، تصویر پیش‌فرض نمایش داده شود
             holder.image.setImageResource(android.R.drawable.sym_def_app_icon)
         }
     }
 
     override fun getItemCount() = contacts.size
 
-    // متد برای به‌روزرسانی لیست وقتی دیتابیس تغییر می‌کند
     fun updateList(newList: List<ContactEntity>) {
         this.contacts = newList
         notifyDataSetChanged()
