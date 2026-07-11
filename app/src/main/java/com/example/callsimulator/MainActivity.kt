@@ -1,21 +1,20 @@
 package com.example.callsimulator
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.callsimulator.model.Contact
+import androidx.room.Room
+import com.example.callsimulator.data.AppDatabase
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var recycler: RecyclerView
-    private val REQUEST_CODE_PERMISSIONS = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,71 +23,23 @@ class MainActivity : AppCompatActivity() {
         recycler = findViewById(R.id.recyclerContacts)
         recycler.layoutManager = LinearLayoutManager(this)
 
-        findViewById<android.widget.Button>(R.id.btnIncomingSimulator).setOnClickListener {
-            startActivity(Intent(this, IncomingSimulatorActivity::class.java))
+        // راه‌اندازی دکمه افزودن که در لایه تعریف کردیم
+        findViewById<ImageButton>(R.id.btnAddContact).setOnClickListener {
+            startActivity(Intent(this, AddContactActivity::class.java))
         }
 
-        checkPermissionsAndLoad()
+        loadContactsFromDatabase()
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (hasContactsPermission()) loadContacts()
-    }
+    private fun loadContactsFromDatabase() {
+        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "call-simulator-db").build()
 
-    private fun hasContactsPermission(): Boolean =
-        ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) ==
-            PackageManager.PERMISSION_GRANTED
-
-    private fun checkPermissionsAndLoad() {
-        val perms = mutableListOf(Manifest.permission.READ_CONTACTS)
-        if (Build.VERSION.SDK_INT >= 33) perms.add(Manifest.permission.POST_NOTIFICATIONS)
-
-        val missing = perms.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        lifecycleScope.launch {
+            // خواندن زنده داده‌ها از دیتابیس
+            db.contactDao().getAllContacts().collect { contactList ->
+                // در مرحله بعد باید آداپتر مخصوص خودت را اینجا مقداردهی کنی
+                // فعلاً لیست از دیتابیس دریافت می‌شود
+            }
         }
-
-        if (missing.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQUEST_CODE_PERMISSIONS)
-        } else {
-            loadContacts()
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_PERMISSIONS && hasContactsPermission()) {
-            loadContacts()
-        }
-    }
-
-    private fun loadContacts() {
-        val contacts: List<Contact> = ContactsRepository.loadContacts(this)
-        recycler.adapter = ContactAdapter(
-            contacts,
-            onCallClick = { contact -> startOutgoingCall(contact) },
-            onConfigClick = { contact -> openConfig(contact) }
-        )
-    }
-
-    private fun startOutgoingCall(contact: Contact) {
-        val intent = Intent(this, CallActivity::class.java).apply {
-            putExtra(CallActivity.EXTRA_CONTACT_ID, contact.id)
-            putExtra(CallActivity.EXTRA_CONTACT_NAME, contact.name)
-            putExtra(CallActivity.EXTRA_CALL_TYPE, CallActivity.TYPE_OUTGOING)
-        }
-        startActivity(intent)
-    }
-
-    private fun openConfig(contact: Contact) {
-        val intent = Intent(this, ContactConfigActivity::class.java).apply {
-            putExtra(ContactConfigActivity.EXTRA_CONTACT_ID, contact.id)
-            putExtra(ContactConfigActivity.EXTRA_CONTACT_NAME, contact.name)
-        }
-        startActivity(intent)
     }
 }
