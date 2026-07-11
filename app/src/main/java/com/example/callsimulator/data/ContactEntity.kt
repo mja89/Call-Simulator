@@ -8,5 +8,6 @@ data class ContactEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
     val phoneNumber: String,
-    val profileImageUri: String?
+    val profileImageUri: String?,
+    val audioPath: String? // فیلد جدید برای ذخیره مسیر فایل صوتی
 )
