@@ -1,5 +1,6 @@
 package com.example.callsimulator
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +28,14 @@ class ContactAdapter(private var contacts: List<ContactEntity>) :
         val contact = contacts[position]
         holder.name.text = contact.name
         holder.phone.text = contact.phoneNumber
+
+        // نمایش عکس از دیتابیس
+        if (!contact.profileImageUri.isNullOrEmpty()) {
+            holder.image.setImageURI(Uri.parse(contact.profileImageUri))
+        } else {
+            // تصویر پیش‌فرض اگر عکسی انتخاب نشده باشد
+            holder.image.setImageResource(android.R.drawable.sym_def_app_icon)
+        }
     }
 
     override fun getItemCount() = contacts.size
