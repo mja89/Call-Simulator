@@ -16,8 +16,9 @@ import java.io.File
 class AddContactActivity : AppCompatActivity() {
 
     private var selectedImageUri: Uri? = null
+    private var editingContactId: Int = -1
+    private var currentAudioPath: String? = null
 
-    // لانچر برای دریافت نتیجه از کراپ
     private val cropImage = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             val resultUri = UCrop.getOutput(result.data!!)
@@ -28,12 +29,11 @@ class AddContactActivity : AppCompatActivity() {
         }
     }
 
-    // لانچر برای انتخاب عکس از گالری
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             val destinationUri = Uri.fromFile(File(cacheDir, "cropped_image_${System.currentTimeMillis()}.jpg"))
             val uCropIntent = UCrop.of(it, destinationUri)
-                .withAspectRatio(1f, 1f) // مربع بودن تصویر
+                .withAspectRatio(1f, 1f)
                 .withMaxResultSize(500, 500)
                 .getIntent(this)
             cropImage.launch(uCropIntent)
@@ -48,6 +48,19 @@ class AddContactActivity : AppCompatActivity() {
             .fallbackToDestructiveMigration()
             .build()
 
+        // دریافت ID برای ویرایش (اگر از صفحه قبل فرستاده شده باشد)
+        editingContactId = intent.getIntExtra("CONTACT_ID", -1)
+
+        if (editingContactId != -1) {
+            lifecycleScope.launch {
+                val contact = db.contactDao().getContactById(editingContactId)
+                findViewById<EditText>(R.id.etName).setText(contact.name)
+                findViewById<EditText>(R.id.etPhoneNumber).setText(contact.phoneNumber)
+                contact.profileImageUri?.let { findViewById<ImageView>(R.id.ivProfile).setImageURI(Uri.parse(it)) }
+                currentAudioPath = contact.audioPath
+            }
+        }
+
         findViewById<ImageView>(R.id.ivProfile).setOnClickListener {
             pickImage.launch("image/*")
         }
@@ -58,14 +71,20 @@ class AddContactActivity : AppCompatActivity() {
 
             if (name.isNotEmpty() && phone.isNotEmpty()) {
                 lifecycleScope.launch {
-                    val imagePath = selectedImageUri?.let { saveImageToInternalStorage(it) }
-                    val contact = ContactEntity(
-                        name = name,
-                        phoneNumber = phone,
-                        profileImageUri = imagePath,
-                        audioPath = null // فعلاً خالی است
-                    )
-                    db.contactDao().insertContact(contact)
+                    val imagePath = selectedImageUri?.let { saveImageToInternalStorage(it) } ?: run {
+                        // اگر عکس جدید انتخاب نشد، از مسیر قبلی استفاده کن
+                        null 
+                    }
+
+                    if (editingContactId != -1) {
+                        // حالت ویرایش
+                        val updatedContact = ContactEntity(editingContactId, name, phone, imagePath, currentAudioPath)
+                        db.contactDao().update(updatedContact)
+                    } else {
+                        // حالت ثبت جدید
+                        val contact = ContactEntity(0, name, phone, imagePath, null)
+                        db.contactDao().insertContact(contact)
+                    }
                     finish()
                 }
             } else {
