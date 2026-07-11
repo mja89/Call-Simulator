@@ -10,12 +10,12 @@ import androidx.room.Room
 import com.example.callsimulator.data.AppDatabase
 import com.example.callsimulator.data.ContactEntity
 import kotlinx.coroutines.launch
+import java.io.File
 
 class AddContactActivity : AppCompatActivity() {
 
     private var selectedImageUri: Uri? = null
-    
-    // تعریف لانچر برای باز کردن گالری
+
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             selectedImageUri = it
@@ -26,12 +26,11 @@ class AddContactActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_contact)
-        
+
         val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "call-simulator-db")
-        .fallbackToDestructiveMigration()
-        .build()
-    
-        // کلیک روی تصویر برای انتخاب از گالری
+            .fallbackToDestructiveMigration()
+            .build()
+
         findViewById<ImageView>(R.id.ivProfile).setOnClickListener {
             pickImage.launch("image/*")
         }
@@ -42,10 +41,13 @@ class AddContactActivity : AppCompatActivity() {
 
             if (name.isNotEmpty() && phone.isNotEmpty()) {
                 lifecycleScope.launch {
+                    // تبدیل Uri به مسیر فایل دائمی
+                    val imagePath = selectedImageUri?.let { saveImageToInternalStorage(it) }
+                    
                     val contact = ContactEntity(
-                        name = name, 
-                        phoneNumber = phone, 
-                        profileImageUri = selectedImageUri?.toString() // ذخیره به صورت String
+                        name = name,
+                        phoneNumber = phone,
+                        profileImageUri = imagePath
                     )
                     db.contactDao().insertContact(contact)
                     finish()
@@ -54,5 +56,17 @@ class AddContactActivity : AppCompatActivity() {
                 Toast.makeText(this, "لطفاً نام و شماره را وارد کنید", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    // این همان متدی است که باید به کلاس اضافه می‌شد
+    private fun saveImageToInternalStorage(uri: Uri): String {
+        val inputStream = contentResolver.openInputStream(uri)
+        val file = File(filesDir, "contact_${System.currentTimeMillis()}.jpg")
+        inputStream?.use { input ->
+            file.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+        return file.absolutePath
     }
 }
