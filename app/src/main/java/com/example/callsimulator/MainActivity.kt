@@ -37,7 +37,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadContactsFromDatabase() {
-        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "call-simulator-db").build()
+        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "call-simulator-db")
+        .fallbackToDestructiveMigration()
+        .build()
+    
 
         lifecycleScope.launch {
             db.contactDao().getAllContacts().collect { contactList ->
