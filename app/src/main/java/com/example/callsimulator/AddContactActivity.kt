@@ -35,20 +35,25 @@ class AddContactActivity : AppCompatActivity() {
             pickImage.launch("image/*")
         }
 
+        // دکمه ذخیره مخاطب
         findViewById<Button>(R.id.btnSave).setOnClickListener {
             val name = findViewById<EditText>(R.id.etName).text.toString()
             val phone = findViewById<EditText>(R.id.etPhoneNumber).text.toString()
 
             if (name.isNotEmpty() && phone.isNotEmpty()) {
+                // استفاده از lifecycleScope برای عملیات دیتابیس در پس‌زمینه
                 lifecycleScope.launch {
-                    // تبدیل Uri به مسیر فایل دائمی
+                    // ۱. کپی عکس در حافظه دائمی گوشی
                     val imagePath = selectedImageUri?.let { saveImageToInternalStorage(it) }
                     
+                    // ۲. ساخت موجودیت مخاطب
                     val contact = ContactEntity(
                         name = name,
                         phoneNumber = phone,
                         profileImageUri = imagePath
                     )
+                    
+                    // ۳. ذخیره در دیتابیس و بستن صفحه
                     db.contactDao().insertContact(contact)
                     finish()
                 }
@@ -58,7 +63,7 @@ class AddContactActivity : AppCompatActivity() {
         }
     }
 
-    // این همان متدی است که باید به کلاس اضافه می‌شد
+    // متد کمکی برای ذخیره عکس در حافظه داخلی برنامه
     private fun saveImageToInternalStorage(uri: Uri): String {
         val inputStream = contentResolver.openInputStream(uri)
         val file = File(filesDir, "contact_${System.currentTimeMillis()}.jpg")
