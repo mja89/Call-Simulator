@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.callsimulator.data.ContactEntity
+import java.io.File
 
 class ContactAdapter(private var contacts: List<ContactEntity>) :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
@@ -19,6 +20,7 @@ class ContactAdapter(private var contacts: List<ContactEntity>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
+        // از همان لایوت item_contact که ساختیم استفاده می‌کنیم
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_contact, parent, false)
         return ContactViewHolder(view)
@@ -26,22 +28,30 @@ class ContactAdapter(private var contacts: List<ContactEntity>) :
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = contacts[position]
+        
         holder.name.text = contact.name
         holder.phone.text = contact.phoneNumber
 
-        // نمایش عکس از دیتابیس
+        // نمایش صحیح عکس از مسیر فایل محلی
         if (!contact.profileImageUri.isNullOrEmpty()) {
-            holder.image.setImageURI(Uri.parse(contact.profileImageUri))
+            val file = File(contact.profileImageUri)
+            if (file.exists()) {
+                holder.image.setImageURI(Uri.fromFile(file))
+            } else {
+                // اگر فایل به هر دلیلی پیدا نشد، تصویر پیش‌فرض نمایش داده شود
+                holder.image.setImageResource(android.R.drawable.sym_def_app_icon)
+            }
         } else {
-            // تصویر پیش‌فرض اگر عکسی انتخاب نشده باشد
+            // اگر آدرس خالی بود، تصویر پیش‌فرض نمایش داده شود
             holder.image.setImageResource(android.R.drawable.sym_def_app_icon)
         }
     }
 
     override fun getItemCount() = contacts.size
 
+    // متد برای به‌روزرسانی لیست وقتی دیتابیس تغییر می‌کند
     fun updateList(newList: List<ContactEntity>) {
-        contacts = newList
+        this.contacts = newList
         notifyDataSetChanged()
     }
     }
