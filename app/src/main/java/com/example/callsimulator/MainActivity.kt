@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private lateinit var recycler: RecyclerView
+    private lateinit var adapter: ContactAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,8 +23,12 @@ class MainActivity : AppCompatActivity() {
 
         recycler = findViewById(R.id.recyclerContacts)
         recycler.layoutManager = LinearLayoutManager(this)
+        
+        // مقداردهی اولیه آداپتر با لیست خالی
+        adapter = ContactAdapter(emptyList())
+        recycler.adapter = adapter
 
-        // راه‌اندازی دکمه افزودن که در لایه تعریف کردیم
+        // دکمه افزودن مخاطب
         findViewById<ImageButton>(R.id.btnAddContact).setOnClickListener {
             startActivity(Intent(this, AddContactActivity::class.java))
         }
@@ -35,10 +40,8 @@ class MainActivity : AppCompatActivity() {
         val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "call-simulator-db").build()
 
         lifecycleScope.launch {
-            // خواندن زنده داده‌ها از دیتابیس
             db.contactDao().getAllContacts().collect { contactList ->
-                // در مرحله بعد باید آداپتر مخصوص خودت را اینجا مقداردهی کنی
-                // فعلاً لیست از دیتابیس دریافت می‌شود
+                adapter.updateList(contactList)
             }
         }
     }
