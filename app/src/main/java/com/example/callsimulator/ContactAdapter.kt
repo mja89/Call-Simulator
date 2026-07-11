@@ -31,6 +31,8 @@ class ContactAdapter(private var contacts: List<ContactEntity>) :
         
         holder.name.text = contact.name
         holder.phone.text = contact.phoneNumber
+        holder.image.clipToOutline = true
+        holder.image.background = context.getDrawable(R.drawable.circle_shape) // از همان شیپی که ساختی استفاده کن
 
         // نمایش صحیح عکس از مسیر فایل محلی
         if (!contact.profileImageUri.isNullOrEmpty()) {
