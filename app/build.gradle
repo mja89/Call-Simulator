@@ -37,10 +37,12 @@ android {
 }
 
 dependencies {
-    val room_version = "2.6.1"
-    implementation("androidx.room:room-runtime:$room_version")
-    implementation("androidx.room:room-ktx:$room_version") // برای استفاده از قابلیت‌های Coroutines
-    ksp("androidx.room:room-compiler:$room_version") // اینجا از ksp استفاده کردیم
+    val room_version = "2.6.1" // اگر این کد هنوز خطا داد، خط بالا را پاک کن و مقادیر را دستی وارد کن (پایین را ببین)
+
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+    
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
