@@ -14,22 +14,22 @@
         android:background="#FFFFFF"
         android:elevation="4dp"> <!-- سایه ظریف -->
 
-        <ImageButton
-            android:id="@+id/btnAddContact"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@android:drawable/ic_input_add"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="افزودن مخاطب" />
-            
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="مخاطبین من"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:layout_marginStart="16dp" />
+   <ImageButton
+       android:id="@+id/btnAddContact"
+       android:layout_width="48dp"
+       android:layout_height="48dp"
+       android:src="@drawable/ic_add" 
+       android:background="?attr/selectableItemBackgroundBorderless"
+       android:contentDescription="افزودن مخاطب" />
+       
+‌‌   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+     ‌  android:text="مخاطبین من"
+       android:textSize="18sp"
+       android:textStyle="bold"
+       android:textColor="#333333"
+       android:layout_marginStart="16dp" />
     </LinearLayout>
 
     <!-- لیست مخاطبین -->
