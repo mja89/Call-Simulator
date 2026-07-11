@@ -26,9 +26,11 @@ class AddContactActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_contact)
-
-        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "call-simulator-db").build()
-
+        
+        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "call-simulator-db")
+        .fallbackToDestructiveMigration()
+        .build()
+    
         // کلیک روی تصویر برای انتخاب از گالری
         findViewById<ImageView>(R.id.ivProfile).setOnClickListener {
             pickImage.launch("image/*")
