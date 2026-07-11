@@ -30,6 +30,6 @@ class ContactAdapter(private var contacts: List<ContactEntity>) :
     fun updateList(newList: List<ContactEntity>) {
         contacts = newList
         notifyDataSetChanged()
-    }
+     }
     }
     
