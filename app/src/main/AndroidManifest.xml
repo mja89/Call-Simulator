@@ -23,6 +23,8 @@
             </intent-filter>
         </activity>
 
+       <activity android:name=".AddContactActivity" />
+        
         <activity
             android:name=".ContactConfigActivity"
             android:exported="false" />
